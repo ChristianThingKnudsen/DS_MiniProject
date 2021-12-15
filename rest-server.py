@@ -50,6 +50,9 @@ app = Flask(__name__)
 # Close the DB connection after serving the request
 app.teardown_appcontext(database.close_db)
 
+@app.route('/')
+def hello():
+    return make_response({'message': 'Hello from distributed rest-server!'})
 
 @app.route('/files', methods=['GET'])
 def list_files():

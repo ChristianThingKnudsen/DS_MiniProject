@@ -12,4 +12,4 @@ Distributed storage mini project.... Yay....
 
 ## Copy files to raspberry pi
 
-- in windows: scp -r ./DS_MiniProject/\* pi@192.168.0.100:DS
+- in windows: scp -r ./DS_MiniProject/* pi@192.168.0.100:DS
