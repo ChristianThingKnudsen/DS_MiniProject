@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+// For RAID 1-like implementation
+message storedata_request
+{
+    string filename = 1;
+}
+
+message getdata_request
+{
+    string filename = 1;
+}
+
+// For HDFS-like implementation
+message storedata_delegating_request
+{
+    string filename = 1;
+    repeated string replica_locations = 2;
+}
+
+// For delegating encoding
+message encode_data_request
+{
+    string filename = 1;
+    repeated string nodes = 2;
+    int32 max_erasures = 3;
+}
+
+// For Heartbeat detection
+message heartbeat_request
+{
+    string nodeip = 1;
+}

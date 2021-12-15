@@ -7,7 +7,7 @@ class Database:
         # Connect to the sqlite DB at 'files.db' and store the connection in 'g.db'
         # Re-use the connection if it already exists
         if 'db' not in g:
-            g.db = sqlite3.connect('../database/files.db',
+            g.db = sqlite3.connect('database/files.db',
                                    detect_types=sqlite3.PARSE_DECLTYPES)
             # Enable casting Row objects to Python dictionaries
             g.db.row_factory = sqlite3.Row
