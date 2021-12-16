@@ -8,18 +8,21 @@ import random
 from flask import Flask, make_response, request, send_file
 import copy
 import hdfs
-# import messages_pb2 // TODO: Incomment later on
-# import raid1 // TODO: Incomment later on
-# import reedsolomon // TODO: Incomment later on
+import messages_pb2 
+import raid1 # TODO: Incomment later on
+import reedsolomon  # TODO: Incomment later
 from database import Database
 
 database = Database()
 
 # For HDFS the name node need to know what storage nodes is available.
 ip_nodes = []
+address = 100 # TODO: Added by us in order to simplify
 for i in range(4):
-    address = input(f'Node {i} address: 192.168.0.___ ')
-    ip_nodes.append('tcp://192.168.0.' + address)
+    # address = input(f'Node {i} address: 192.168.0.___ ') # TODO: outcommented by us 
+    ip_nodes.append('tcp://192.168.0.' + str(address))
+    address +=1
+    
 
 networking = Networking(ip_nodes)
 
@@ -52,7 +55,7 @@ app.teardown_appcontext(database.close_db)
 
 @app.route('/')
 def hello():
-    return make_response({'message': 'Hello from distributed rest-server!'})
+    return make_response({'message': 'Hello from rest-server!'})
 
 @app.route('/files', methods=['GET'])
 def list_files():
@@ -73,8 +76,9 @@ def list_files():
 def add_files():
     payload = request.form
     files = request.files
-    # storage_mode = payload.get('storage', 'RAID1') // TODO: Outcommented by us
-    storage_mode = payload.get('storage', 'HDFS')
+
+    # storage_type = payload.get('storage', 'RAID1') // TODO: Outcommented by us
+    storage_type = payload.get('storage', 'HDFS')
 
     if not files or not files.get('file'):
         return make_response("File missing!", 400)
@@ -91,66 +95,60 @@ def add_files():
     size = len(data)
     print("File received: %s, size: %d bytes, type: %s" % (filename, size, content_type))
 
-    if storage_mode == "RAID1":
+    if storage_type == "RAID1":
         print("RAID1")
-        # n_replicas = int(payload.get('n_replicas')) // TODO: Incomment the below later on
-        # n_stripes = int(payload.get('n_stripes'))
-        # if 0 < n_stripes < 3:
-        #     storage_details = raid1.store_file(data, send_task_socket, response_socket, n_stripes, n_replicas) 
-        # else:
-        #     return make_response({"message": "Number of stripes not supported"}, 404)
+        n_replicas = int(payload.get('n_replicas')) 
+        n_stripes = int(payload.get('n_stripes'))
+        if 0 < n_stripes < 3:
+            storage_details = raid1.store_file(data, send_task_socket, response_socket, n_stripes, n_replicas) 
+        else:
+            return make_response({"message": "Number of stripes not supported"}, 404)
 
-    elif storage_mode == "HDFS":
+    elif storage_type == "HDFS":
         n_replicas = int(payload.get('n_replicas'))
         storage_details = hdfs.store_file(networking, context, filename, n_replicas, data)
 
-    # elif storage_mode == "EC_RS": // TODO: Incomment below later on
-    #     max_erasures = int(payload.get('max_erasures', 1))
-    #     type = payload.get('type')
-    #     print("Max erasures: %d" % max_erasures)
+    elif storage_type == "EC_RS": 
+        max_erasures = int(payload.get('max_erasures', 1))
+        type = payload.get('type')
+        print("Max erasures: %d" % max_erasures)
 
-    #     if type == 'a':
-    #         fragment_names = reedsolomon.store_file(data, max_erasures, send_task_socket, response_socket, filename)
+        if type == 'a':
+            fragment_names = reedsolomon.store_file(data, max_erasures, send_task_socket, response_socket, filename)
 
-    #     elif type == 'b':
+        elif type == 'b':
 
-    #         nodes = networking.get_n_peer_node_address(4)
+            nodes = networking.get_n_peer_node_address(4)
 
-    #         encode_socket = context.socket(zmq.REQ)
-    #         encode_socket.connect(nodes[-1] + ':5542')
+            encode_socket = context.socket(zmq.REQ)
+            encode_socket.connect(nodes[-1] + ':5542')
 
-    #         # pb_file = messages_pb2.encode_data_request()
-    #         # pb_file.filename = filename
-    #         # pb_file.nodes.extend(nodes)
-    #         # pb_file.max_erasures = max_erasures
-    #         #
-    #         # encoded_pb_file = pb_file.SerializeToString()
-    #         print(f"before encode: {time.time()}")
-    #         encode_socket.send_pyobj({
-    #             "data": data,
-    #             "filename": filename,
-    #             "nodes": nodes,
-    #             "max_erasures":max_erasures
-    #         })
+            print(f"before encode: {time.time()}")
+            encode_socket.send_pyobj({
+                "data": data,
+                "filename": filename,
+                "nodes": nodes,
+                "max_erasures":max_erasures
+            })
 
-    #         print(f"after encode: {time.time()}")
+            print(f"after encode: {time.time()}")
 
-    #         result = encode_socket.recv_pyobj()
-    #         fragment_names = result['names']
+            result = encode_socket.recv_pyobj()
+            fragment_names = result['names']
 
-    #     storage_details = {
-    #         "coded_fragments": fragment_names,
-    #         "max_erasures": max_erasures,
-    #         "type": type
-    #     }
+        storage_details = {
+            "coded_fragments": fragment_names,
+            "max_erasures": max_erasures,
+            "type": type
+        }
     else:
         return make_response({"message": "Invalid storage mode"}, 404)
 
     # Insert the File record in the DB
     db = database.get_db()
     cursor = db.execute(
-        "INSERT INTO `file`(`filename`, `size`, `content_type`, `storage_mode`, `storage_details`) VALUES (?,?,?,?,?)",
-        (filename, size, content_type, storage_mode, json.dumps(storage_details))
+        "INSERT INTO `file`(`filename`, `size`, `content_type`, `storage_type`, `storage_details`) VALUES (?,?,?,?,?)",
+        (filename, size, content_type, storage_type, json.dumps(storage_details))
     )
     db.commit()
 
@@ -173,94 +171,94 @@ def download_file(file_name):
     file_meta = dict(f)
 
     storage_details = json.loads(file_meta['storage_details'])
-    if file_meta['storage_mode'] == "RAID1":
+    if file_meta['storage_type'] == "RAID1":
         print("RAID1")
-        # if 'filenames' in storage_details: // TODO: Incomment below later on
-        #     filenames = storage_details['filenames']
-        #     nodes = storage_details['nodes']
+        if 'filenames' in storage_details: 
+            filenames = storage_details['filenames']
+            nodes = storage_details['nodes']
 
-        #     file_data = raid1.get_file_from_filename(
-        #         networking,
-        #         filenames,
-        #         nodes,
-        #         data_req_socket,
-        #         response_socket,
-        #         request_heartbeat_socket
-        #     )
+            file_data = raid1.get_file_from_filename(
+                networking,
+                filenames,
+                nodes,
+                data_req_socket,
+                response_socket,
+                request_heartbeat_socket
+            )
 
-        # elif 'part1_filenames' in storage_details:
-        #     part1_filenames = storage_details['part1_filenames']
-        #     part2_filenames = storage_details['part2_filenames']
-        #     part1_nodes = storage_details['part1_nodes']
-        #     part2_nodes = storage_details['part2_nodes']
+        elif 'part1_filenames' in storage_details:
+            part1_filenames = storage_details['part1_filenames']
+            part2_filenames = storage_details['part2_filenames']
+            part1_nodes = storage_details['part1_nodes']
+            part2_nodes = storage_details['part2_nodes']
 
-        #     file_data = raid1.get_file_from_parts(
-        #         networking,
-        #         part1_filenames,
-        #         part2_filenames,
-        #         part1_nodes,
-        #         part2_nodes,
-        #         data_req_socket,
-        #         response_socket,
-        #         request_heartbeat_socket
-        #     )
-    elif file_meta['storage_mode'] == 'HDFS':
+            file_data = raid1.get_file_from_parts(
+                networking,
+                part1_filenames,
+                part2_filenames,
+                part1_nodes,
+                part2_nodes,
+                data_req_socket,
+                response_socket,
+                request_heartbeat_socket
+            )
+    elif file_meta['storage_type'] == 'HDFS':
         nodes = storage_details['nodes']
         filename = file_meta['filename']
         file_data = hdfs.get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket)
 
-    elif file_meta['storage_mode'] == 'EC_RS':
+    elif file_meta['storage_type'] == 'EC_RS':
         print("EC_RS")
-        # coded_fragments = storage_details['coded_fragments'] // TODO: Incomment below later on
-        # max_erasures = storage_details['max_erasures']
-        # type = storage_details['type']
+        coded_fragments = storage_details['coded_fragments'] 
+        max_erasures = storage_details['max_erasures']
+        type = storage_details['type']
 
-        # if type == 'a':
-        #     file_data = reedsolomon.get_file(
-        #         coded_fragments,
-        #         max_erasures,
-        #         f['size'],
-        #         data_req_socket,
-        #         response_socket,
-        #         file_name
-        #     )
+        if type == 'a':
+            file_data = reedsolomon.get_file(
+                coded_fragments,
+                max_erasures,
+                f['size'],
+                data_req_socket,
+                response_socket,
+                file_name
+            )
 
-        # elif type == 'b':
-        #     fragnames = copy.deepcopy(coded_fragments)
-        #     for i in range(max_erasures):
-        #         fragnames.remove(random.choice(fragnames))
+        elif type == 'b':
+            fragnames = copy.deepcopy(coded_fragments)
+            for i in range(max_erasures):
+                fragnames.remove(random.choice(fragnames))
 
-        #     # Request the coded fragments in parallel
-        #     for name in fragnames:
-        #         task = messages_pb2.getdata_request()
-        #         task.filename = name
-        #         data_req_socket.send(
-        #             task.SerializeToString()
-        #         )
+            # Request the coded fragments in parallel
+            for name in fragnames:
+                task = messages_pb2.getdata_request()
+                task.filename = name
+                data_req_socket.send(
+                    task.SerializeToString()
+                )
 
-        #     # Receive all chunks and insert them into the symbols array
-        #     symbols = []
-        #     for _ in range(len(fragnames)):
-        #         result = response_socket.recv_multipart()
-        #         # In this case we don't care about the received name, just use the
-        #         # data from the second frame
-        #         print(result[0])
-        #         symbols.append({
-        #             "chunkname": result[0].decode('utf-8'),
-        #             "data": bytearray(result[1])
-        #         })
+            # Receive all chunks and insert them into the symbols array
+            symbols = []
+            for _ in range(len(fragnames)):
+                result = response_socket.recv_multipart()
+                # In this case we don't care about the received name, just use the
+                # data from the second frame
+                print(result[0])
+                symbols.append({
+                    "chunkname": result[0].decode('utf-8'),
+                    "data": bytearray(result[1])
+                })
 
-        #     node = networking.get_n_peer_node_address(1)
+            node = networking.get_n_peer_node_address(1)
 
-        #     decode_socket = context.socket(zmq.REQ)
-        #     decode_socket.connect(node[0] + ':5543')
+            decode_socket = context.socket(zmq.REQ)
+            decode_socket.connect(node[0] + ':5543')
 
-        #     decode_socket.send_pyobj({"data": symbols, "size": file_meta["size"],"filename":file_name})
+            decode_socket.send_pyobj({"data": symbols, "size": file_meta["size"],"filename":file_name})
 
-        #     result = decode_socket.recv_multipart()
+            result = decode_socket.recv_multipart()
 
-        #     file_data = result[0]
-            # print(f'decoded data rest_server: {file_data}')
+            file_data = result[0]
+            print(f'decoded data rest_server: {file_data}')
 
     else:
         return make_response({"message": "Invalid storage details"}, 400)

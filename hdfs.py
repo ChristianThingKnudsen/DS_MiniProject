@@ -29,7 +29,6 @@ def store_file(networking, context, filename, n_replicas, file_data):
         f.write(filename + ';' + str(time()-t1) + "\n")
         f.close()
         result = socket.recv()
-        print("Result: ", result) # TODO:Added by us
     except zmq.error.ZMQError as e:
         print(e)
 

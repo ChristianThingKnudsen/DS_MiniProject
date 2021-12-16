@@ -9,7 +9,7 @@ from time import time
 import zmq
 from utils import random_string
 import messages_pb2
-# import reedsolomon //TODO: Incomment later on
+import reedsolomon 
 
 MAX_CHUNKS_PER_FILE = 10
 
@@ -70,7 +70,8 @@ if data_folder != "./":
 context = zmq.Context()
 # Socket to receive Store Chunk messages from the controller
 # Ask the user to input the last segment of the server IP address
-server_address = input("Server address: 192.168.0.___ ")
+# server_address = input("Server address: 192.168.0.___ ") # TODO: Outcommented by us
+server_address = str(100) # TODO: Added by us in order to simplify
 
 # Socket to receive Store Chunk messages from the controller
 pull_address = "tcp://192.168.0." + server_address + ":5557"
@@ -129,6 +130,7 @@ print("Data folder: %s" % data_folder)
 local_ip = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [
     [(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in
      [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
+print(f"Running on: {local_ip}")
 
 while True:
     try:
@@ -274,67 +276,67 @@ while True:
         ecrs_receive_socket.send_pyobj({'filename': task.filename, 'ip': local_ip})
 
     if encode_socket in socks:
-        print("Encode_socket")
-        # t1 = time() // TODO: //TODO: Incomment later on
-        # msg = encode_socket.recv_pyobj()
+        t1 = time() 
+        msg = encode_socket.recv_pyobj()
 
-        # # task = messages_pb2.encode_data_request()
-        # # task.ParseFromString(msg[0])
-        # fragment_names = []
-        # for _ in range(4):
-        #     fragment_names.append(random_string(8))
+        # task = messages_pb2.encode_data_request()
+        # task.ParseFromString(msg[0])
+        fragment_names = []
+        for _ in range(4):
+            fragment_names.append(random_string(8))
 
-        # encode_socket.send_pyobj({
-        #     "names": fragment_names
-        # })
+        encode_socket.send_pyobj({
+            "names": fragment_names
+        })
 
-        # encoded_fragments = reedsolomon.encode_file(msg['data'], int(msg['max_erasures']), msg['filename'], fragment_names)
-        # nodes = msg['nodes']
-        # sockets = []
-        # for i in range(len(encoded_fragments) - 1):
-        #     sock = context.socket(zmq.REQ)
-        #     print(f'Accessing: {nodes[i]}')
-        #     sock.connect(nodes[i] + ':5544')
+        encoded_fragments = reedsolomon.encode_file(msg['data'], int(msg['max_erasures']), msg['filename'], fragment_names)
+        nodes = msg['nodes']
+        sockets = []
+        for i in range(len(encoded_fragments) - 1):
+            sock = context.socket(zmq.REQ)
+            print(f'Accessing: {nodes[i]}')
+            sock.connect(nodes[i] + ':5544')
 
-        #     sockets.append(sock)
-        #     fragment = encoded_fragments[i]
-        #     task = messages_pb2.storedata_request()
-        #     task.filename = fragment['name']
+            sockets.append(sock)
+            fragment = encoded_fragments[i]
+            task = messages_pb2.storedata_request()
+            task.filename = fragment['name']
 
-        #     sock.send_multipart([
-        #         task.SerializeToString(),
-        #         fragment['data']
-        #     ])
+            sock.send_multipart([
+                task.SerializeToString(),
+                fragment['data']
+            ])
 
-        # data = encoded_fragments[-1]['data']
-        # # Store the chunk with the given filename
-        # chunk_local_path = data_folder + '/' + encoded_fragments[-1]['name'] + "." + str(0)
-        # write_file(data, chunk_local_path)
-        # print("Chunk saved to %s" % chunk_local_path)
+        data = encoded_fragments[-1]['data']
+        # Store the chunk with the given filename
+        chunk_local_path = data_folder + '/' + encoded_fragments[-1]['name'] + "." + str(0)
+        write_file(data, chunk_local_path)
+        print("Chunk saved to %s" % chunk_local_path)
 
-        # for socket in sockets:
-        #     resp = socket.recv_pyobj()
-        #     res_filename = resp['filename']
-        #     res_ip = resp['ip']
-        #     print(f'File {res_filename} stored on {res_ip}')
+        for socket in sockets:
+            resp = socket.recv_pyobj()
+            res_filename = resp['filename']
+            res_ip = resp['ip']
+            print(f'File {res_filename} stored on {res_ip}')
 
-        # f = open("timings_ecrs_b" + ".csv", "a")
-        # f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
-        # f.close()
+        f = open("timings_ecrs_b" + ".csv", "a")
+        f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
+        f.close()
 
     if decode_socket in socks:
         print("Decode_socket")
-        # msg = decode_socket.recv_pyobj() //TODO: Incomment below later on
+        msg = decode_socket.recv_pyobj() 
 
-        # symbols = msg['data']
-        # file_size = msg['size']
-        # filename = msg['filename']
-        # data = reedsolomon.decode_file(symbols, filename)
-        # # print(f'decoded data storage_node: {data}')
-        # # print(f'decoded data file size storage_node: {data[:file_size]}')
-        # # print(f"data: {data}")
-        # decode_socket.send_multipart([
-        #     data[:file_size]
-        # ])
+        symbols = msg['data']
+        file_size = msg['size']
+        filename = msg['filename']
+        data = reedsolomon.decode_file(symbols, filename)
+        # TODO: Incomment below to view printed data
+        # print(f'decoded data storage_node: {data}')
+        # print(f'decoded data file size storage_node: {data[:file_size]}')
+        # print(f"data: {data}")
+        decode_socket.send_multipart([
+            data[:file_size]
+        ])
 
     pass

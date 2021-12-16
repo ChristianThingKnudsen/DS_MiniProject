@@ -10,6 +10,13 @@ Distributed storage mini project.... Yay....
 - pi4: ssh pi@192.168.0.103
 - password: raspberry
 
-## Copy files to raspberry pi
+# Running servers
+- rest-server: python rest-server.py
+- storage-node: python storage-node.py
 
-- in windows: scp -r ./DS_MiniProject/* pi@192.168.0.100:DS
+## Copy files to raspberry pi's using script 
+- bash transfer_files.sh
+
+
+## Create new db
+sqlite3.exe files.db ".read create_table.sql"
