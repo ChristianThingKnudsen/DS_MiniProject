@@ -215,7 +215,7 @@ while True:
         hdfs_receive_socket.send(b"Done")
 
         nodes_left = task.replica_locations
-
+        print(f"storage node, nodes left: {nodes_left}")
         if len(nodes_left) > 0:
             next_node = nodes_left.pop(0)
 

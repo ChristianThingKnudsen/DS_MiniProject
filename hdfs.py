@@ -7,6 +7,7 @@ from time import time
 def store_file(networking, context, filename, n_replicas, file_data):
     t1 = time()
     peer_nodes = networking.get_n_peer_node_address(n_replicas)
+    print(f"HDFS pper nodes: {peer_nodes}")
     first_node = peer_nodes.pop(0)
 
     # Create Protobuf file

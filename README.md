@@ -10,7 +10,7 @@ Distributed storage mini project.... Yay....
 - pi4: ssh pi@192.168.0.103
 - password: raspberry
 
-# Running servers
+## Running servers
 - rest-server: python rest-server.py
 - storage-node: python storage-node.py
 
@@ -20,3 +20,14 @@ Distributed storage mini project.... Yay....
 
 ## Create new db
 sqlite3.exe files.db ".read create_table.sql"
+
+## Generating SSH-key
+- ssh-keygen -t ed25519 -C "your_email@example.com" => giver .pub (public fil + path) 
+- eval "$(ssh-agent -s)" => starter ssh agent på pi'en
+- cat + .pub path => kopier dette 
+- github => settings + add ssh-key 
+
+## KODO 
+- install 1: python waf configure build
+- install 2: python waf install
+- copy .so file: cp ./kodo.cpython-37m-arm-linux-gnueabihf.so ./DS
