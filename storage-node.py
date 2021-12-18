@@ -235,8 +235,10 @@ while True:
                     encoded_pb_file,
                     data
                 ])
-                f = open("timings" + ".csv", "a")
-                f.write(task.filename + ';' + str(time() - t1) + "\n")
+                # f = open("timings" + ".csv", "a")
+                # f.write(task.filename + ';' + str(time() - t1) + "\n")
+                f = open("HDFS_StorageNode_"+task.filename.split(".")[0] + ".csv", "a")
+                f.write(str(time() - t1) + "\n")
                 f.close()
                 result = socket.recv()
                 print(result)
@@ -244,8 +246,10 @@ while True:
             except zmq.error.ZMQError as e:
                 print(e)
         else:
-            f = open("timings" + ".csv", "a")
-            f.write(task.filename + ';' + str(time() - t1) + "\n")
+            # f = open("timings" + ".csv", "a")
+            # f.write(task.filename + ';' + str(time() - t1) + "\n")
+            f = open("HDFS_StorageNode_"+task.filename.split(".")[0] + ".csv", "a")
+            f.write(str(time() - t1) + "\n")
             f.close()
 
     if hdfs_retrieve_socket in socks:
