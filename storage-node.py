@@ -22,6 +22,8 @@ def write_file(file_data, file_name=None):
     :param file_name: The file name. If not given, a random string is generated
     :return: The file name of the newly written file, or None if there was an error
     """
+    print("Inside write file") # TODO: Delete this shit later
+    # print(file_data) # TODO: Delete this shit later
 
     if not file_name:
         # Generate random filename

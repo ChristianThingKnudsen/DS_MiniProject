@@ -19,6 +19,7 @@ database = Database()
 ip_nodes = []
 address = 100 # TODO: Added by us in order to simplify
 for i in range(4):
+    # if (address != 101):
     # address = input(f'Node {i} address: 192.168.0.___ ') # TODO: outcommented by us 
     ip_nodes.append('tcp://192.168.0.' + str(address))
     address +=1
