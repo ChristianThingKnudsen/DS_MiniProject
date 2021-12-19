@@ -17,7 +17,7 @@ files =  {
         "file": file
 }
 for i in range(100):
-    time.sleep(1)
+    time.sleep(40)
     file.seek(0,0)
     t1 = time.time()
     response = requests.post(url, files=files, data = body)
