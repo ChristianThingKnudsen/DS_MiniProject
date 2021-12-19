@@ -3,10 +3,10 @@ import time
 import sys
 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[3]
+file_name = file_names[4]
 
 replicas = [2,3,4]
-n_replica = replicas[0]
+n_replica = replicas[2]
 
 url = "http://192.168.0.100:5000/files"
 body = {
