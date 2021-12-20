@@ -4,7 +4,7 @@ import sys
 
 # Files 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[1]
+file_name = file_names[2]
 url = f"http://192.168.0.100:5000/files/{file_name}"
 # Storage types
 storage_types = ["HDFS", "RAID1", "EC_a", "EC_b"]
