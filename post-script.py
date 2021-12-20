@@ -4,7 +4,7 @@ import sys
 
 # Files 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[2]
+file_name = file_names[1]
 # Replicas
 replicas = [2,3,4]
 n_replica = replicas[2]
@@ -24,7 +24,7 @@ RAID_body = {
 }
 EC_body = {
     "storage": storage_type, 
-    "max_erasures": 2, # Loss tolerance.
+    "max_erasures": 1, # Loss tolerance.
     "type": "a" # can be 'a' or 'b'. 
 }
 bodies = [HDFS_body,RAID_body, EC_body]
