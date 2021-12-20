@@ -325,11 +325,13 @@ while True:
             res_ip = resp['ip']
             print(f'File {res_filename} stored on {res_ip}')
 
-        f = open("timings_ecrs_b" + ".csv", "a")
+        # f = open("timings_ecrs_b" + ".csv", "a")
+        f = open("EC_StorageNode_encode_"+msg['max_erasures']+"l_"+filename.split(".")[0]+".csv", "a")
         f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
         f.close()
 
     if decode_socket in socks:
+        t1 = time() 
         print("Decode_socket")
         msg = decode_socket.recv_pyobj() 
 
@@ -344,5 +346,8 @@ while True:
         decode_socket.send_multipart([
             data[:file_size]
         ])
+        f = open("EC_StorageNode_decode_"+len(symbols)+"l_"+filename.split(".")[0]+".csv", "a")
+        f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
+        f.close()
 
     pass
