@@ -4,7 +4,7 @@ import sys
 
 # Files 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[3]
+file_name = file_names[2]
 # Replicas
 replicas = [2,3,4]
 n_replica = replicas[2]
@@ -25,11 +25,10 @@ RAID_body = {
 EC_body = {
     "storage": storage_type, 
     "max_erasures": 1, # Loss tolerance.
-    "type": "a" # can be 'a' or 'b'. 
+    "type": "b" # can be 'a' or 'b'. 
 }
 bodies = [HDFS_body,RAID_body, EC_body]
 body = bodies[index]
-print(body["type"])
 
 url = "http://192.168.0.100:5000/files"
 file = open("../"+file_name,"rb")
@@ -63,6 +62,7 @@ for i in range(100):
         f.close()
         sys.stdout.write("completed request for " +file_name+ " "+ "time: "+ str(time.time()-t1)+ " Type: " + storage_type + " iteration: "+ str(i) + "\n")  # same as print
         sys.stdout.flush()
+        time.sleep(1)
     else:
         print("Unnown storage type")
         break        

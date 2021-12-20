@@ -297,6 +297,7 @@ while True:
 
         encoded_fragments = reedsolomon.encode_file(msg['data'], int(msg['max_erasures']), msg['filename'], fragment_names)
         nodes = msg['nodes']
+
         sockets = []
         for i in range(len(encoded_fragments) - 1):
             sock = context.socket(zmq.REQ)
@@ -326,8 +327,8 @@ while True:
             print(f'File {res_filename} stored on {res_ip}')
 
         # f = open("timings_ecrs_b" + ".csv", "a")
-        f = open("EC_StorageNode_encode_"+str(msg['max_erasures'])+"l_"+filename.split(".")[0]+".csv", "a")
-        f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
+        f = open("EC_StorageNode_encode_"+str(msg['max_erasures'])+"l_"+msg['filename'].split(".")[0]+".csv", "a")
+        f.write(str(time() - t1) + "\n")
         f.close()
 
     if decode_socket in socks:
@@ -347,7 +348,7 @@ while True:
             data[:file_size]
         ])
         f = open("EC_StorageNode_decode_"+str(len(symbols))+"l_"+filename.split(".")[0]+".csv", "a")
-        f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
+        f.write(str(time() - t1) + "\n")
         f.close()
 
     pass
