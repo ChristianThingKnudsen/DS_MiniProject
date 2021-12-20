@@ -206,6 +206,7 @@ def download_file(file_name):
     elif file_meta['storage_type'] == 'HDFS':
         nodes = storage_details['nodes']
         filename = file_meta['filename']
+        print(f" nodes in hdfs: {nodes}") # TODO: Delete
         file_data = hdfs.get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket)
 
     elif file_meta['storage_type'] == 'EC_RS':

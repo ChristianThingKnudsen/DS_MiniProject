@@ -41,11 +41,12 @@ def store_file(networking, context, filename, n_replicas, file_data):
 
 
 def get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket):
+    print(f"len nodes: {len(nodes)}")
     if len(nodes) > 1:
         random_index = random.randint(0, len(nodes) - 1)
     else:
         random_index = 0
-
+    print(f"random index: ${random_index}")
     node = nodes.pop(random_index)
     node = node[6:]
     print(f'Checking: {node}')
@@ -53,9 +54,9 @@ def get_file(networking, context, filename, nodes, request_heartbeat_socket, res
     pb_file = messages_pb2.getdata_request()
     pb_file.filename = filename
 
-    is_alive = networking.check_heartbeat(node, request_heartbeat_socket, response_socket)
+    # is_alive = networking.check_heartbeat(node, request_heartbeat_socket, response_socket) # TODO: Incomment later
 
-    if is_alive:
+    if True: # is_alive # TODO: Removed by us 
         socket = context.socket(zmq.REQ)
         socket.connect('tcp://' + node + ':5541')
         try:
