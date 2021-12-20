@@ -28,6 +28,6 @@ for i in range(100):
     # print("completed request for " +file_name+ ": "+ str(i))
     sys.stdout.write("completed request for " +file_name+ " "+ "time: "+ str(time.time()-t1)+ " iteration: "+ str(i) + "\n")  # same as print
     sys.stdout.flush()
-    time.sleep(5)
+    time.sleep(70)
             
 print("Done John")
