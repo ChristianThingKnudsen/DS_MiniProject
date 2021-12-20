@@ -326,7 +326,7 @@ while True:
             print(f'File {res_filename} stored on {res_ip}')
 
         # f = open("timings_ecrs_b" + ".csv", "a")
-        f = open("EC_StorageNode_encode_"+msg['max_erasures']+"l_"+filename.split(".")[0]+".csv", "a")
+        f = open("EC_StorageNode_encode_"+str(msg['max_erasures'])+"l_"+filename.split(".")[0]+".csv", "a")
         f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
         f.close()
 
@@ -346,7 +346,7 @@ while True:
         decode_socket.send_multipart([
             data[:file_size]
         ])
-        f = open("EC_StorageNode_decode_"+len(symbols)+"l_"+filename.split(".")[0]+".csv", "a")
+        f = open("EC_StorageNode_decode_"+str(len(symbols))+"l_"+filename.split(".")[0]+".csv", "a")
         f.write(msg['filename'] + ';' + str(time() - t1) + "\n")
         f.close()
 

@@ -4,7 +4,7 @@ import sys
 
 # Files 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[4]
+file_name = file_names[2]
 # Replicas
 replicas = [2,3,4]
 n_replica = replicas[2]
@@ -29,6 +29,7 @@ EC_body = {
 }
 bodies = [HDFS_body,RAID_body, EC_body]
 body = bodies[index]
+print(body["type"])
 
 url = "http://192.168.0.100:5000/files"
 file = open("../"+file_name,"rb")
@@ -57,7 +58,7 @@ for i in range(100):
     elif storage_type == "EC_RS":
         t1 = time.time()
         response = requests.post(url, files=files, data = body)
-        f = open("./measurements/EC_"+body.type+"/EC_"+body.type+"_results_"+body.max_erasures+"l_"+ file_name.split(".")[0] + ".csv", "a")
+        f = open("./measurements/EC_"+body["type"]+"/EC_"+body["type"]+"_results_"+str(body["max_erasures"])+"l_"+ file_name.split(".")[0] + ".csv", "a")
         f.write(str(time.time()-t1) + "\n")
         f.close()
         sys.stdout.write("completed request for " +file_name+ " "+ "time: "+ str(time.time()-t1)+ " Type: " + storage_type + " iteration: "+ str(i) + "\n")  # same as print

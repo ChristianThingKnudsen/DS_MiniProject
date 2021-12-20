@@ -48,7 +48,7 @@ def encode_file(file_data, max_erasures, filename, random_names):
             "data": coefficients[:symbols] + bytearray(symbol)
         })
     # f = open("encode" + ".csv", "a")
-    f = open("EC_encoding_"+max_erasures+"l_"+filename.split(".")[0]+".csv", "a")
+    f = open("EC_encoding_"+str(max_erasures)+"l_"+filename.split(".")[0]+".csv", "a")
     # f.write(filename + ';' + str(time() - t1) + "\n")
     f.write(str(time() - t1) + "\n")
     f.close()
@@ -121,7 +121,7 @@ def decode_file(symbols, filename):
     print("File decoded successfully")
 
     # f = open("decode" + ".csv", "a") 
-    f = open("EC_decode_"+symbols_num+"l_"+filename.split(".")[0]+".csv", "a")
+    f = open("EC_decode_"+str(symbols_num)+"l_"+filename.split(".")[0]+".csv", "a")
     # f.write(filename + ';' + str(time() - t1) + "\n")
     f.write(str(time() - t1) + "\n")
     f.close()
