@@ -112,7 +112,7 @@ for i in range(100):
         f.close()
         sys.stdout.write("completed request for " +file_name+ " "+ "time: "+ str(time.time()-t1)+ " iteration: "+ str(i) + "\n")  # same as print
         sys.stdout.flush()
-        time.sleep(70) # TODO: Incomment
+        time.sleep(70) 
     elif storage_type == "RAID1":
         t1 = time.time()
         response = requests.post(url, files=files, data = body)
