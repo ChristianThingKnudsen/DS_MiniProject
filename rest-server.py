@@ -9,18 +9,17 @@ from flask import Flask, make_response, request, send_file
 import copy
 import hdfs
 import messages_pb2 
-import raid1 # TODO: Incomment later on
-import reedsolomon  # TODO: Incomment later
+import raid1 
+import reedsolomon  
 from database import Database
 
 database = Database()
 
 # For HDFS the name node need to know what storage nodes is available.
 ip_nodes = []
-address = 100 # TODO: Added by us in order to simplify
+address = 100 # Added by us in order to simplify
 for i in range(4):
-    # if (address != 101):
-    # address = input(f'Node {i} address: 192.168.0.___ ') # TODO: outcommented by us 
+    # address = input(f'Node {i} address: 192.168.0.___ ') # Incomment for dynmic approach
     ip_nodes.append('tcp://192.168.0.' + str(address))
     address +=1
     
@@ -78,7 +77,6 @@ def add_files():
     payload = request.form
     files = request.files
 
-    # storage_type = payload.get('storage', 'RAID1') // TODO: Outcommented by us
     storage_type = payload.get('storage', 'HDFS')
 
     if not files or not files.get('file'):
@@ -206,7 +204,6 @@ def download_file(file_name):
     elif file_meta['storage_type'] == 'HDFS':
         nodes = storage_details['nodes']
         filename = file_meta['filename']
-        print(f" nodes in hdfs: {nodes}") # TODO: Delete
         file_data = hdfs.get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket)
 
     elif file_meta['storage_type'] == 'EC_RS':

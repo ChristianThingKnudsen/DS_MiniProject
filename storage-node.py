@@ -22,8 +22,6 @@ def write_file(file_data, file_name=None):
     :param file_name: The file name. If not given, a random string is generated
     :return: The file name of the newly written file, or None if there was an error
     """
-    print("Inside write file") # TODO: Delete this shit later
-    # print(file_data) # TODO: Delete this shit later
 
     if not file_name:
         # Generate random filename
@@ -72,8 +70,8 @@ if data_folder != "./":
 context = zmq.Context()
 # Socket to receive Store Chunk messages from the controller
 # Ask the user to input the last segment of the server IP address
-# server_address = input("Server address: 192.168.0.___ ") # TODO: Outcommented by us
-server_address = str(100) # TODO: Added by us in order to simplify
+# server_address = input("Server address: 192.168.0.___ ") # Incomment in order to make it dynamic
+server_address = str(100) # Added in order to simplify
 
 # Socket to receive Store Chunk messages from the controller
 pull_address = "tcp://192.168.0." + server_address + ":5557"
@@ -237,8 +235,6 @@ while True:
                     encoded_pb_file,
                     data
                 ])
-                # f = open("timings" + ".csv", "a")
-                # f.write(task.filename + ';' + str(time() - t1) + "\n")
                 f = open("HDFS_StorageNode_"+task.filename.split(".")[0] + ".csv", "a")
                 f.write(str(time() - t1) + "\n")
                 f.close()
@@ -248,8 +244,6 @@ while True:
             except zmq.error.ZMQError as e:
                 print(e)
         else:
-            # f = open("timings" + ".csv", "a")
-            # f.write(task.filename + ';' + str(time() - t1) + "\n")
             f = open("HDFS_StorageNode_"+task.filename.split(".")[0] + ".csv", "a")
             f.write(str(time() - t1) + "\n")
             f.close()
@@ -285,8 +279,6 @@ while True:
         t1 = time() 
         msg = encode_socket.recv_pyobj()
 
-        # task = messages_pb2.encode_data_request()
-        # task.ParseFromString(msg[0])
         fragment_names = []
         for _ in range(4):
             fragment_names.append(random_string(8))
@@ -326,7 +318,6 @@ while True:
             res_ip = resp['ip']
             print(f'File {res_filename} stored on {res_ip}')
 
-        # f = open("timings_ecrs_b" + ".csv", "a")
         f = open("EC_StorageNode_encode_"+str(msg['max_erasures'])+"l_"+msg['filename'].split(".")[0]+".csv", "a")
         f.write(str(time() - t1) + "\n")
         f.close()
@@ -340,10 +331,6 @@ while True:
         file_size = msg['size']
         filename = msg['filename']
         data = reedsolomon.decode_file(symbols, filename)
-        # TODO: Incomment below to view printed data
-        # print(f'decoded data storage_node: {data}')
-        # print(f'decoded data file size storage_node: {data[:file_size]}')
-        # print(f"data: {data}")
         decode_socket.send_multipart([
             data[:file_size]
         ])

@@ -5,7 +5,6 @@ from time import time
 
 
 def store_file(networking, context, filename, n_replicas, file_data):
-    t1 = time()
     peer_nodes = networking.get_n_peer_node_address(n_replicas)
     print(f"HDFS pper nodes: {peer_nodes}")
     first_node = peer_nodes.pop(0)
@@ -20,19 +19,11 @@ def store_file(networking, context, filename, n_replicas, file_data):
     # Create Connection to node and send
     socket = context.socket(zmq.REQ)
     socket.connect(first_node + ':5540')
-
-    # csv_filename = "HDFS_LeadNode_"+str(n_replicas)+"k_"+ filename.split(".")[0]
-
     try:
         socket.send_multipart([
             encoded_pb_file,
             file_data
         ])
-        # f = open("timings_store_file" + ".csv", "a")
-        # f.write(filename + ';' + str(time()-t1) + "\n")
-        # f = open(csv_filename + ".csv", "a")
-        # f.write(str(time()-t1) + "\n")
-        # f.close()
         result = socket.recv()
     except zmq.error.ZMQError as e:
         print(e)
