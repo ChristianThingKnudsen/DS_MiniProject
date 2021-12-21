@@ -173,30 +173,7 @@ def get_file_from_parts(part1_filenames, part2_filenames, data_req_socket,
     random_part2_index = random.randint(0, len(part2_filenames) - 1)
 
     part1_filename = part1_filenames.pop(random_part1_index)
-    # part1_node = part1_nodes.pop(random_part1_index)
-
     part2_filename = part2_filenames.pop(random_part2_index)
-    # part2_node = part2_nodes.pop(random_part2_index)
-
-
-
-    # while not (part1_node_is_alive and part2_node_is_alive):
-    #     if not part1_node_is_alive:
-    #         if len(part1_filenames) > 1:
-    #             random_part1_index = random.randint(0, len(part1_filenames) - 1)
-    #         else:
-    #             random_part1_index = 0
-    #         part1_filename = part1_filenames.pop(random_part1_index)
-    #         part1_node = part1_nodes.pop(random_part1_index)
-    #         part1_node_is_alive = networking.check_heartbeat(part1_node, request_heartbeat_socket, response_socket)
-    #     if not part2_node_is_alive:
-    #         if len(part1_filenames) > 1:
-    #             random_part2_index = random.randint(0, len(part2_filenames) - 1)
-    #         else:
-    #             random_part2_index = 0
-    #         part2_filename = part2_filenames.pop(random_part2_index)
-    #         part2_node = part2_nodes.pop(random_part2_index)
-    #         part2_node_is_alive = networking.check_heartbeat(part2_node, request_heartbeat_socket, response_socket)
 
     print(f'Fetching part 1: {part1_filename}')
     # Request both chunks in parallel

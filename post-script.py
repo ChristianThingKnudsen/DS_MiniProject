@@ -4,12 +4,12 @@ import sys
 
 # Files 
 file_names = ["10KB.bin", "100KB.bin", "1MB.bin", "10MB.bin", "100MB.bin"]
-file_name = file_names[2]
+file_name = file_names[0]
 # Replicas
 replicas = [2,3,4]
 n_replica = replicas[2]
 # Storage types
-index = 2
+index = 0
 storage_types = ["HDFS", "RAID1", "EC_RS"]
 storage_type = storage_types[index]
 # Bodies
@@ -45,7 +45,7 @@ for i in range(100):
         f.close()
         sys.stdout.write("completed request for " +file_name+ " "+ "time: "+ str(time.time()-t1)+ " iteration: "+ str(i) + "\n")  # same as print
         sys.stdout.flush()
-        time.sleep(70)
+        time.sleep(1)
     elif storage_type == "RAID1":
         t1 = time.time()
         response = requests.post(url, files=files, data = body)
