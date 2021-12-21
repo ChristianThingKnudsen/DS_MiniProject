@@ -31,7 +31,7 @@ def store_file(networking, context, filename, n_replicas, file_data):
     return {"nodes": [first_node] + peer_nodes}
 
 
-def get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket):
+def get_file(networking, context, filename, nodes, response_socket):
     print(f"len nodes: {len(nodes)}")
     if len(nodes) > 1:
         random_index = random.randint(0, len(nodes) - 1)
@@ -45,18 +45,15 @@ def get_file(networking, context, filename, nodes, request_heartbeat_socket, res
     pb_file = messages_pb2.getdata_request()
     pb_file.filename = filename
 
-    # is_alive = networking.check_heartbeat(node, request_heartbeat_socket, response_socket) # TODO: Incomment later
+    socket = context.socket(zmq.REQ)
+    socket.connect('tcp://' + node + ':5541')
+    try:
+        encoded_pb_file = pb_file.SerializeToString()
+        socket.send(bytes(encoded_pb_file))
+        result = socket.recv()
+        return result
+    except zmq.error.ZMQError as e:
+        print(e)
+        pass
 
-    if True: # is_alive # TODO: Removed by us 
-        socket = context.socket(zmq.REQ)
-        socket.connect('tcp://' + node + ':5541')
-        try:
-            encoded_pb_file = pb_file.SerializeToString()
-            socket.send(bytes(encoded_pb_file))
-            result = socket.recv()
-            return result
-        except zmq.error.ZMQError as e:
-            print(e)
-            pass
-
-    return get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket)
+    return get_file(networking, context, filename, nodes, response_socket)

@@ -40,10 +40,6 @@ response_socket.bind("tcp://*:5558")
 data_req_socket = context.socket(zmq.PUB)
 data_req_socket.bind("tcp://*:5559")
 
-# Socket to send tasks to Storage Nodes
-request_heartbeat_socket = context.socket(zmq.PUB)
-request_heartbeat_socket.bind("tcp://*:5560")
-
 # Wait for all workers to start and connect.
 time.sleep(1)
 print("Listening to ZMQ messages on tcp://*:5558")
@@ -177,34 +173,26 @@ def download_file(file_name):
             nodes = storage_details['nodes']
 
             file_data = raid1.get_file_from_filename(
-                networking,
                 filenames,
                 nodes,
                 data_req_socket,
                 response_socket,
-                request_heartbeat_socket
             )
 
         elif 'part1_filenames' in storage_details:
             part1_filenames = storage_details['part1_filenames']
             part2_filenames = storage_details['part2_filenames']
-            part1_nodes = storage_details['part1_nodes']
-            part2_nodes = storage_details['part2_nodes']
 
             file_data = raid1.get_file_from_parts(
-                networking,
                 part1_filenames,
                 part2_filenames,
-                part1_nodes,
-                part2_nodes,
                 data_req_socket,
-                response_socket,
-                request_heartbeat_socket
+                response_socket
             )
     elif file_meta['storage_type'] == 'HDFS':
         nodes = storage_details['nodes']
         filename = file_meta['filename']
-        file_data = hdfs.get_file(networking, context, filename, nodes, request_heartbeat_socket, response_socket)
+        file_data = hdfs.get_file(networking, context, filename, nodes, response_socket)
 
     elif file_meta['storage_type'] == 'EC_RS':
         print("EC_RS")

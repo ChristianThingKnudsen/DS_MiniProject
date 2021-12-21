@@ -90,10 +90,6 @@ subscriber = context.socket(zmq.SUB)
 subscriber.connect("tcp://192.168.0." + server_address + ":5559")
 # subscriber.connect("tcp://localhost:5559")
 
-# Socket to receive Store Chunk messages from the controller
-heartbeat_subscriber = context.socket(zmq.SUB)
-heartbeat_subscriber.connect("tcp://192.168.0." + server_address + ":5560")
-
 # HDFS sockets:
 hdfs_receive_socket = context.socket(zmq.REP)
 hdfs_receive_socket.bind("tcp://*:5540")
@@ -112,13 +108,11 @@ ecrs_receive_socket.bind("tcp://*:5544")
 
 # Receive every message (empty subscription)
 subscriber.setsockopt(zmq.SUBSCRIBE, b'')
-heartbeat_subscriber.setsockopt(zmq.SUBSCRIBE, b'')
 
 # Use a Poller to monitor two sockets at the same time
 poller = zmq.Poller()
 poller.register(receiver, zmq.POLLIN)
 poller.register(subscriber, zmq.POLLIN)
-poller.register(heartbeat_subscriber, zmq.POLLIN)
 poller.register(hdfs_receive_socket, zmq.POLLIN)
 poller.register(hdfs_retrieve_socket, zmq.POLLIN)
 poller.register(encode_socket, zmq.POLLIN)
@@ -158,17 +152,6 @@ while True:
             print("Chunk saved to %s" % chunk_local_path)
 
         sender.send_pyobj({'filename': task.filename, 'ip': local_ip})
-
-    if heartbeat_subscriber in socks:
-        print('Received heartbeat request')
-        msg = heartbeat_subscriber.recv()
-        task = messages_pb2.heartbeat_request()
-        task.ParseFromString(msg)
-        print(task.nodeip)
-        print(local_ip)
-        if task.nodeip == local_ip:
-            print('Sending Im alive')
-            sender.send_string('Im alive')
 
     if subscriber in socks:
         # Incoming message on the 'subscriber' socket where we get retrieve requests

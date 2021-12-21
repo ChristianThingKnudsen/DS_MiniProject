@@ -21,6 +21,9 @@
 ## Create new db
 sqlite3.exe files.db ".read create_table.sql"
 
+## Protobuf
+- Run: protoc --python_out=. messages.proto
+
 ## Generating SSH-key
 - ssh-keygen -t ed25519 -C "some_email@some_example.com" => giver .pub (public fil + path) 
 - eval "$(ssh-agent -s)" => starter ssh agent på PI'en

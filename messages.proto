@@ -25,9 +25,3 @@ message encode_data_request
     repeated string nodes = 2;
     int32 max_erasures = 3;
 }
-
-// For Heartbeat detection
-message heartbeat_request
-{
-    string nodeip = 1;
-}

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0emessages.proto\"%\n\x11storedata_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"#\n\x0fgetdata_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"K\n\x1cstoredata_delegating_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x19\n\x11replica_locations\x18\x02 \x03(\t\"L\n\x13\x65ncode_data_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\r\n\x05nodes\x18\x02 \x03(\t\x12\x14\n\x0cmax_erasures\x18\x03 \x01(\x05\"#\n\x11heartbeat_request\x12\x0e\n\x06nodeip\x18\x01 \x01(\tb\x06proto3'
+  serialized_pb=b'\n\x0emessages.proto\"%\n\x11storedata_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"#\n\x0fgetdata_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"K\n\x1cstoredata_delegating_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x19\n\x11replica_locations\x18\x02 \x03(\t\"L\n\x13\x65ncode_data_request\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\r\n\x05nodes\x18\x02 \x03(\t\x12\x14\n\x0cmax_erasures\x18\x03 \x01(\x05\x62\x06proto3'
 )
 
 
@@ -173,43 +173,10 @@ _ENCODE_DATA_REQUEST = _descriptor.Descriptor(
   serialized_end=247,
 )
 
-
-_HEARTBEAT_REQUEST = _descriptor.Descriptor(
-  name='heartbeat_request',
-  full_name='heartbeat_request',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='nodeip', full_name='heartbeat_request.nodeip', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=249,
-  serialized_end=284,
-)
-
 DESCRIPTOR.message_types_by_name['storedata_request'] = _STOREDATA_REQUEST
 DESCRIPTOR.message_types_by_name['getdata_request'] = _GETDATA_REQUEST
 DESCRIPTOR.message_types_by_name['storedata_delegating_request'] = _STOREDATA_DELEGATING_REQUEST
 DESCRIPTOR.message_types_by_name['encode_data_request'] = _ENCODE_DATA_REQUEST
-DESCRIPTOR.message_types_by_name['heartbeat_request'] = _HEARTBEAT_REQUEST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 storedata_request = _reflection.GeneratedProtocolMessageType('storedata_request', (_message.Message,), {
@@ -239,13 +206,6 @@ encode_data_request = _reflection.GeneratedProtocolMessageType('encode_data_requ
   # @@protoc_insertion_point(class_scope:encode_data_request)
   })
 _sym_db.RegisterMessage(encode_data_request)
-
-heartbeat_request = _reflection.GeneratedProtocolMessageType('heartbeat_request', (_message.Message,), {
-  'DESCRIPTOR' : _HEARTBEAT_REQUEST,
-  '__module__' : 'messages_pb2'
-  # @@protoc_insertion_point(class_scope:heartbeat_request)
-  })
-_sym_db.RegisterMessage(heartbeat_request)
 
 
 # @@protoc_insertion_point(module_scope)

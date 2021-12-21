@@ -129,7 +129,7 @@ def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_re
 
 
 #
-def get_file_from_filename(networking, filenames, nodes, data_req_socket, response_socket, request_heartbeat_socket):
+def get_file_from_filename(filenames, nodes, data_req_socket, response_socket):
     if len(filenames) > 1:
         random_index = random.randint(0, len(filenames) - 1)
     else:
@@ -139,33 +139,26 @@ def get_file_from_filename(networking, filenames, nodes, data_req_socket, respon
     filename = filenames.pop(random_index)
     node = nodes.pop(random_index)
 
-    is_alive = networking.check_heartbeat(node, request_heartbeat_socket, response_socket)
+    # Request filename
+    task = messages_pb2.getdata_request()
+    task.filename = filename
+    data_req_socket.send(
+        task.SerializeToString()
+    )
 
-    if is_alive:
-        # Request filename
-        task = messages_pb2.getdata_request()
-        task.filename = filename
-        data_req_socket.send(
-            task.SerializeToString()
-        )
+    result = response_socket.recv_multipart()
+    # First frame: file name (string)
+    filename_received = result[0].decode('utf-8')
+    # Second frame: data
+    file_data = result[1]
 
-        result = response_socket.recv_multipart()
-        # First frame: file name (string)
-        filename_received = result[0].decode('utf-8')
-        # Second frame: data
-        file_data = result[1]
+    print("File received successfully")
 
-        print("File received successfully")
-
-        return file_data
-
-    else:
-        return get_file_from_filename(networking, filenames, nodes, data_req_socket, response_socket,
-                                      request_heartbeat_socket)
+    return file_data
 
 
-def get_file_from_parts(networking, part1_filenames, part2_filenames, part1_nodes, part2_nodes, data_req_socket,
-                        response_socket, request_heartbeat_socket):
+def get_file_from_parts(part1_filenames, part2_filenames, data_req_socket,
+                        response_socket):
     """
     Implements retrieving a file that is stored with RAID 1 using 4 storage nodes.
 
@@ -180,34 +173,30 @@ def get_file_from_parts(networking, part1_filenames, part2_filenames, part1_node
     random_part2_index = random.randint(0, len(part2_filenames) - 1)
 
     part1_filename = part1_filenames.pop(random_part1_index)
-    part1_node = part1_nodes.pop(random_part1_index)
+    # part1_node = part1_nodes.pop(random_part1_index)
 
     part2_filename = part2_filenames.pop(random_part2_index)
-    part2_node = part2_nodes.pop(random_part2_index)
+    # part2_node = part2_nodes.pop(random_part2_index)
 
-    part1_node_is_alive = False
-    part2_node_is_alive = False
 
-    part1_node_is_alive = networking.check_heartbeat(part1_node, request_heartbeat_socket, response_socket)
-    part2_node_is_alive = networking.check_heartbeat(part2_node, request_heartbeat_socket, response_socket)
 
-    while not (part1_node_is_alive and part2_node_is_alive):
-        if not part1_node_is_alive:
-            if len(part1_filenames) > 1:
-                random_part1_index = random.randint(0, len(part1_filenames) - 1)
-            else:
-                random_part1_index = 0
-            part1_filename = part1_filenames.pop(random_part1_index)
-            part1_node = part1_nodes.pop(random_part1_index)
-            part1_node_is_alive = networking.check_heartbeat(part1_node, request_heartbeat_socket, response_socket)
-        if not part2_node_is_alive:
-            if len(part1_filenames) > 1:
-                random_part2_index = random.randint(0, len(part2_filenames) - 1)
-            else:
-                random_part2_index = 0
-            part2_filename = part2_filenames.pop(random_part2_index)
-            part2_node = part2_nodes.pop(random_part2_index)
-            part2_node_is_alive = networking.check_heartbeat(part2_node, request_heartbeat_socket, response_socket)
+    # while not (part1_node_is_alive and part2_node_is_alive):
+    #     if not part1_node_is_alive:
+    #         if len(part1_filenames) > 1:
+    #             random_part1_index = random.randint(0, len(part1_filenames) - 1)
+    #         else:
+    #             random_part1_index = 0
+    #         part1_filename = part1_filenames.pop(random_part1_index)
+    #         part1_node = part1_nodes.pop(random_part1_index)
+    #         part1_node_is_alive = networking.check_heartbeat(part1_node, request_heartbeat_socket, response_socket)
+    #     if not part2_node_is_alive:
+    #         if len(part1_filenames) > 1:
+    #             random_part2_index = random.randint(0, len(part2_filenames) - 1)
+    #         else:
+    #             random_part2_index = 0
+    #         part2_filename = part2_filenames.pop(random_part2_index)
+    #         part2_node = part2_nodes.pop(random_part2_index)
+    #         part2_node_is_alive = networking.check_heartbeat(part2_node, request_heartbeat_socket, response_socket)
 
     print(f'Fetching part 1: {part1_filename}')
     # Request both chunks in parallel

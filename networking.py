@@ -19,19 +19,3 @@ class Networking:
             peer_nodes.append(nodes_left.pop(index))
 
         return peer_nodes
-
-    def check_heartbeat(self, node_ip, request_heartbeat_socket, response_socket):
-        task = messages_pb2.heartbeat_request()
-        task.nodeip = node_ip
-
-        request_heartbeat_socket.send(
-            task.SerializeToString()
-        )
-
-        if response_socket.poll(1000, zmq.POLLIN):
-            resp = response_socket.recv_string()
-            print(f"{node_ip} {resp}")
-            return True
-        else:
-            print(f"{node_ip} is dead")
-            return False
