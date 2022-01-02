@@ -1,4 +1,4 @@
-import base64
+# rest-server inspired by setup in lab 7
 import io
 import json
 import time
@@ -15,16 +15,14 @@ from database import Database
 
 database = Database()
 ip_nodes = []
-address = 100 # starts with 100 ends with 103
+address = 100 # Starts with 100 ends with 103
 for i in range(4): 
     ip_nodes.append('tcp://192.168.0.' + str(address))
     address +=1
     
 
 networking = Networking(ip_nodes)
-
 context = zmq.Context()
-
 # Socket to send tasks to Storage Nodes
 send_task_socket = context.socket(zmq.PUSH)
 send_task_socket.bind("tcp://*:5557")
@@ -61,7 +59,6 @@ def list_files():
     # Convert files from sqlite3.Row object (which is not JSON-encodable) to
     # a standard Python dictionary simply by casting
     files = [dict(file) for file in files]
-
     return make_response({"files": files})
 
 
@@ -69,15 +66,12 @@ def list_files():
 def add_files():
     payload = request.form
     files = request.files
-
     storage_type = payload.get('storage', 'HDFS')
-
     if not files or not files.get('file'):
         return make_response("File missing!", 400)
 
     # Reference to the file under 'file' key
     file = files.get('file')
-
     # The sender encodes a the file name and type together with the file contents
     filename = file.filename
     content_type = file.mimetype
@@ -139,7 +133,6 @@ def add_files():
         (filename, size, content_type, storage_type, json.dumps(storage_details))
     )
     db.commit()
-
     # Return the ID of the new file record with HTTP 201 (Created) status code
     return make_response({"id": cursor.lastrowid}, 201)
 
@@ -157,7 +150,6 @@ def download_file(file_name):
 
     # Convert to a Python dictionary
     file_meta = dict(f)
-
     storage_details = json.loads(file_meta['storage_details'])
     if file_meta['storage_type'] == "RAID1":
         print("RAID1")
@@ -188,7 +180,6 @@ def download_file(file_name):
         file_data = hdfs.get_file(networking, context, filename, nodes, response_socket)
 
     elif file_meta['storage_type'] == 'EC_RS':
-        print("EC_RS")
         coded_fragments = storage_details['coded_fragments'] 
         max_erasures = storage_details['max_erasures']
         type = storage_details['type']

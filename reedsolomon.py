@@ -1,7 +1,7 @@
 import kodo
 import math
 import random
-import copy  # for deepcopy
+import copy 
 from utils import random_string
 import messages_pb2
 import json
@@ -17,7 +17,7 @@ RS_CAUCHY_COEFFS = [
 ]
 
 
-def encode_file(file_data, max_erasures, filename, random_names):
+def encode_file(file_data, max_erasures, filename, random_names): # Inspired by lab 6 
     t1 = time()
     # Make sure we can realize max_erasures with 4 storage nodes
     assert (max_erasures >= 0)
@@ -31,7 +31,7 @@ def encode_file(file_data, max_erasures, filename, random_names):
     encoder = kodo.RLNCEncoder(kodo.field.binary8, symbols, symbol_size)
     encoder.set_symbols_storage(file_data)
 
-    encoded_fragments = []
+    fragments_encoded = []
     # Generate one coded fragment for each Storage Node
     for i in range(STORAGE_NODES_NUM):
         # Select the next Reed Solomon coefficient vector
@@ -41,16 +41,15 @@ def encode_file(file_data, max_erasures, filename, random_names):
         symbol = encoder.produce_symbol(coefficients[:symbols])
         # Generate a random name for it and save
         name = random_names[i]
-        # encoded_fragments.append(name)
 
-        encoded_fragments.append({
+        fragments_encoded.append({
             "name": name,
             "data": coefficients[:symbols] + bytearray(symbol)
         })
     f = open("EC_encoding_"+str(max_erasures)+"l_"+filename.split(".")[0]+".csv", "a")
     f.write(str(time() - t1) + "\n")
     f.close()
-    return encoded_fragments
+    return fragments_encoded
 
 
 def store_file(file_data, max_erasures, send_task_socket, response_socket, filename): # Inspired by lab 6 

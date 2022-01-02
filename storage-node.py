@@ -3,7 +3,6 @@ import random
 import string
 import sys
 import socket
-import pickle
 from time import time
 
 import zmq
@@ -73,7 +72,6 @@ server_address = str(100) # Rest server address
 
 # Socket to receive Store Chunk messages from the controller
 pull_address = "tcp://192.168.0." + server_address + ":5557"
-# pull_address = "tcp://localhost:5557"
 receiver = context.socket(zmq.PULL)
 receiver.connect(pull_address)
 print("Listening on %s" % pull_address)
@@ -81,14 +79,11 @@ print("Listening on %s" % pull_address)
 # Socket to send results to the controller
 sender = context.socket(zmq.PUSH)
 sender.connect("tcp://192.168.0." + server_address + ":5558")
-# sender.connect("tcp://localhost:5558")
 
 # Socket to receive Get Chunk messages from the controller
 subscriber = context.socket(zmq.SUB)
 subscriber.connect("tcp://192.168.0." + server_address + ":5559")
-# subscriber.connect("tcp://localhost:5559")
 
-# HDFS sockets:
 hdfs_receive_socket = context.socket(zmq.REP)
 hdfs_receive_socket.bind("tcp://*:5540")
 
@@ -119,10 +114,10 @@ poller.register(ecrs_receive_socket, zmq.POLLIN)
 
 print("Data folder: %s" % data_folder)
 
-local_ip = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [
+ip_local = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [
     [(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in
      [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
-print(f"Running on: {local_ip}")
+print(f"Running on: {ip_local}")
 
 while True:
     try:
@@ -132,8 +127,7 @@ while True:
         break
 
     # At this point one or multiple sockets have received a message
-    if receiver in socks:
-        # Incoming message on the PULL
+    if receiver in socks: # PULL
         # Incoming message on the 'receiver' socket where we get tasks to store a chunk
         msg = receiver.recv_multipart()
         # Parse the Protobuf message from the first frame
@@ -149,7 +143,7 @@ while True:
             write_file(data, chunk_local_path)
             print("Chunk saved to %s" % chunk_local_path)
 
-        sender.send_pyobj({'filename': task.filename, 'ip': local_ip})
+        sender.send_pyobj({'filename': task.filename, 'ip': ip_local})
 
     if subscriber in socks:
         # Incoming message on the 'subscriber' socket where we get retrieve requests
@@ -182,14 +176,11 @@ while True:
     if hdfs_receive_socket in socks:
         t1 = time()
         message = hdfs_receive_socket.recv_multipart()
-
         # Parse the Protobuf message from the first frame
         task = messages_pb2.storedata_delegating_request()
         task.ParseFromString(message[0])
-
         # The data is the second frame
         data = message[1]
-
         local_path = data_folder + '/' + task.filename
         write_file(data, local_path)
         print("File saved to %s" % local_path)
@@ -199,12 +190,10 @@ while True:
         print(f"storage node, nodes left: {nodes_left}")
         if len(nodes_left) > 0:
             next_node = nodes_left.pop(0)
-
             # Create Connection to node and send
             socket = context.socket(zmq.REQ)
             socket.connect(next_node + ':5540')
-
-            # Create new proto_buf-msg
+            # Protobuf
             new_task = messages_pb2.storedata_delegating_request()
             new_task.filename = task.filename
             new_task.replica_locations.extend(nodes_left)
@@ -235,14 +224,14 @@ while True:
         task = messages_pb2.getdata_request()
         task.ParseFromString(message)
 
-        print(f'Retrieving: {task.filename}')
+        print(f'Retrieving file: {task.filename}')
         file = retrieve_file(task.filename)
-        print(f'Length of message: {len(bytes(file))}')
+        print(f'Length of file: {len(bytes(file))}')
         hdfs_retrieve_socket.send(bytes(file))
 
     if ecrs_receive_socket in socks:
         msg = ecrs_receive_socket.recv_multipart()
-        # Parse the Protobuf message from the first frame
+        # Protobuf
         task = messages_pb2.storedata_request()
         task.ParseFromString(msg[0])
 
@@ -254,7 +243,7 @@ while True:
             write_file(data, chunk_local_path)
             print("Chunk saved to %s" % chunk_local_path)
 
-        ecrs_receive_socket.send_pyobj({'filename': task.filename, 'ip': local_ip})
+        ecrs_receive_socket.send_pyobj({'filename': task.filename, 'ip': ip_local})
 
     if encode_socket in socks:
         t1 = time() 
@@ -307,7 +296,6 @@ while True:
         t1 = time() 
         print("Decode_socket")
         msg = decode_socket.recv_pyobj() 
-
         symbols = msg['data']
         file_size = msg['size']
         filename = msg['filename']
