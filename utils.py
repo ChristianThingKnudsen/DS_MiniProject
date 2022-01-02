@@ -2,7 +2,7 @@ import random
 import string
 import os
 
-def random_string(length=8): # Generating a random string 
+def random_string(length=8): # Generating a random string. Inspired by lab 6
     """
     Returns a random alphanumeric string of the given length. 
     Only lowercase ascii letters and numbers are used.
@@ -13,7 +13,7 @@ def random_string(length=8): # Generating a random string
     return ''.join([random.SystemRandom().choice(string.ascii_letters + string.digits) for n in range(length)])
 #
 
-def write_file(data, filename=None): # Generic method for writing a file
+def write_file(data, filename=None): # Generic method for writing a file. Inspired by lab 6
     """
     Write the given data to a local file with the given filename
 
@@ -35,7 +35,7 @@ def write_file(data, filename=None): # Generic method for writing a file
     return filename
 #
 
-def is_raspberry_pi(): # Check if it is a raspberry pi 
+def is_raspberry_pi(): # Check if it is a raspberry pi. Inspired by lab 6 
     """
     Returns True if the current platform is a Raspberry Pi, otherwise False.
     """

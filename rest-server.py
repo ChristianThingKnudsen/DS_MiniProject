@@ -82,7 +82,6 @@ def add_files():
     print("File received: %s, size: %d bytes, type: %s" % (filename, size, content_type))
 
     if storage_type == "RAID1":
-        print("RAID1")
         n_replicas = int(payload.get('n_replicas')) 
         storage_details = raid1.store_file(data, send_task_socket, response_socket, n_replicas) 
 
@@ -93,7 +92,6 @@ def add_files():
     elif storage_type == "EC_RS": 
         max_erasures = int(payload.get('max_erasures', 1))
         type = payload.get('type')
-        print("Max erasures: %d" % max_erasures)
 
         if type == 'a':
             fragment_names = reedsolomon.store_file(data, max_erasures, send_task_socket, response_socket, filename)
