@@ -14,7 +14,7 @@ import reedsolomon
 MAX_CHUNKS_PER_FILE = 10
 
 
-def write_file(file_data, file_name=None):
+def write_file(file_data, file_name=None): # Inspired by week 4 
     """
     Write the given data to a local file with the given filename
 
@@ -69,9 +69,7 @@ if data_folder != "./":
 
 context = zmq.Context()
 # Socket to receive Store Chunk messages from the controller
-# Ask the user to input the last segment of the server IP address
-# server_address = input("Server address: 192.168.0.___ ") # Incomment in order to make it dynamic
-server_address = str(100) # Added in order to simplify
+server_address = str(100) # Rest server address
 
 # Socket to receive Store Chunk messages from the controller
 pull_address = "tcp://192.168.0." + server_address + ":5557"

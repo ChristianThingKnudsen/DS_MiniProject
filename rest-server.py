@@ -90,11 +90,7 @@ def add_files():
     if storage_type == "RAID1":
         print("RAID1")
         n_replicas = int(payload.get('n_replicas')) 
-        n_stripes = int(payload.get('n_stripes'))
-        if 0 < n_stripes < 2: # 1 stripe supported
-            storage_details = raid1.store_file(data, send_task_socket, response_socket, n_stripes, n_replicas) 
-        else:
-            return make_response({"message": "Number of stripes not supported"}, 404)
+        storage_details = raid1.store_file(data, send_task_socket, response_socket, n_replicas) 
 
     elif storage_type == "HDFS":
         n_replicas = int(payload.get('n_replicas'))

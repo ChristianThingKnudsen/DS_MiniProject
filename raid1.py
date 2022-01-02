@@ -18,13 +18,9 @@ def random_string(length=8): # Inspired by week 4
 
 def store_file(file_data, send_task_socket, response_socket, n_stripes, n_replicas):
 
-    if n_stripes == 1:
-        filenames, nodes = __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas)
+    filenames, nodes = __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas)
 
-        storage_details = {"filenames": filenames, "nodes": nodes}
-
-    else:
-        return print(f"ERROR: could not handle: {str(n_stripes)} number of stripes. 1 stripe is supported.")
+    storage_details = {"filenames": filenames, "nodes": nodes}
 
     return storage_details
 
@@ -39,31 +35,28 @@ def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_re
     :return: A list of the random generated chunk names, e.g. (c1,c2), (c3,c4)
     """
 
-    if n_stripes == 1:
-        filenames = []
-        nodes = []
-        for i in range(n_replicas):
-            pb_file = messages_pb2.storedata_request()
-            pb_file.filename = random_string(8)
-            encoded_pb_file = pb_file.SerializeToString()
+    filenames = []
+    nodes = []
+    for i in range(n_replicas):
+        pb_file = messages_pb2.storedata_request()
+        pb_file.filename = random_string(8)
+        encoded_pb_file = pb_file.SerializeToString()
 
-            send_task_socket.send_multipart([encoded_pb_file, file_data])
+        send_task_socket.send_multipart([encoded_pb_file, file_data])
 
-        # Wait until we receive k responses from the workers
-        for task_nbr in range(n_replicas):
-            resp = response_socket.recv_pyobj()
-            filename = resp['filename']
-            node_ip = resp['ip']
+    # Wait until we receive k responses from the workers
+    for task_nbr in range(n_replicas):
+        resp = response_socket.recv_pyobj()
+        filename = resp['filename']
+        node_ip = resp['ip']
 
-            filenames.append(filename)
-            nodes.append(node_ip)
+        filenames.append(filename)
+        nodes.append(node_ip)
 
-            print(f'Stored: {filename} on node {node_ip}')
+        print(f'Stored: {filename} on node {node_ip}')
 
-        return filenames, nodes
+    return filenames, nodes
 
-    else:
-        return print(f"ERROR: could not handle: {str(n_stripes)} number of stripes. 1 stripe is supported.")
 
 
 
