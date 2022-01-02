@@ -1,22 +1,18 @@
 import zmq
 import messages_pb2
 import random
-from time import time
 
 
-def store_file(networking, context, filename, n_replicas, file_data):
-    peer_nodes = networking.get_n_peer_node_address(n_replicas)
+def store_file(networking, context, filename, n_replicas, file_data): # Storing 
+    peer_nodes = networking.get_peer_nodes_addresses(n_replicas)
     print(f"HDFS pper nodes: {peer_nodes}")
     first_node = peer_nodes.pop(0)
-
-    # Create Protobuf file
+    # Protobuf
     pb_file = messages_pb2.storedata_delegating_request()
     pb_file.filename = filename
     pb_file.replica_locations.extend(peer_nodes)
-
     encoded_pb_file = pb_file.SerializeToString()
-
-    # Create Connection to node and send
+    # Establish a connection to a node and send 
     socket = context.socket(zmq.REQ)
     socket.connect(first_node + ':5540')
     try:
@@ -31,20 +27,18 @@ def store_file(networking, context, filename, n_replicas, file_data):
     return {"nodes": [first_node] + peer_nodes}
 
 
-def get_file(networking, context, filename, nodes, response_socket):
-    print(f"len nodes: {len(nodes)}")
-    if len(nodes) > 1:
+def get_file(networking, context, filename, nodes, response_socket): # Getting
+    if len(nodes) > 1: # If there is more than one node left, do it random
         random_index = random.randint(0, len(nodes) - 1)
     else:
         random_index = 0
-    print(f"random index: ${random_index}")
     node = nodes.pop(random_index)
     node = node[6:]
-    print(f'Checking: {node}')
-
+    print(f'Checking node: {node}')
+    # Protobuf
     pb_file = messages_pb2.getdata_request()
     pb_file.filename = filename
-
+    # Establish a connection to a node 
     socket = context.socket(zmq.REQ)
     socket.connect('tcp://' + node + ':5541')
     try:

@@ -1,3 +1,4 @@
+# This is a script for making GET-requests for the lead node
 import requests
 import time
 import sys

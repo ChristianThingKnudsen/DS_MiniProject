@@ -53,7 +53,7 @@ def encode_file(file_data, max_erasures, filename, random_names):
     return encoded_fragments
 
 
-def store_file(file_data, max_erasures, send_task_socket, response_socket, filename):
+def store_file(file_data, max_erasures, send_task_socket, response_socket, filename): # Inspired by lab 6 
     """
     Store a file using Reed Solomon erasure coding, protecting it against 'max_erasures'
     unavailable storage nodes.
@@ -71,10 +71,10 @@ def store_file(file_data, max_erasures, send_task_socket, response_socket, filen
     for _ in range(4):
         fragment_names.append(random_string(8))
 
-    encoded_fragments = encode_file(file_data, max_erasures, filename, fragment_names)
+    fragments_encoded = encode_file(file_data, max_erasures, filename, fragment_names)
 
-    for i in range(len(encoded_fragments)):
-        fragment = encoded_fragments[i]
+    for i in range(len(fragments_encoded)):
+        fragment = fragments_encoded[i]
         task = messages_pb2.storedata_request()
         task.filename = fragment['name']
 
@@ -83,13 +83,13 @@ def store_file(file_data, max_erasures, send_task_socket, response_socket, filen
             fragment['data']
         ])
 
-    for task_nbr in encoded_fragments:
+    for task_nbr in fragments_encoded:
         resp = response_socket.recv_pyobj()
 
     return fragment_names
 
 
-def decode_file(symbols, filename):
+def decode_file(symbols, filename): # Inspired by lab 8 
     t1 = time()
     """
     Decode a file using Reed Solomon decoder and the provided coded symbols.
@@ -127,7 +127,7 @@ def decode_file(symbols, filename):
 
 
 def get_file(coded_fragments, max_erasures, file_size,
-             data_req_socket, response_socket, filename):
+             data_req_socket, response_socket, filename): # Inspired by lab 8 
     """
     Implements retrieving a file that is stored with Reed Solomon erasure coding
 
@@ -143,8 +143,7 @@ def get_file(coded_fragments, max_erasures, file_size,
     # We need 4-max_erasures fragments to reconstruct the file, select this many 
     # by randomly removing 'max_erasures' elements from the given chunk names. 
     fragnames = copy.deepcopy(coded_fragments)
-
-    print(f"frags: {fragnames}")
+    print(f"fragments: {fragnames}")
     for i in range(max_erasures):
         fragnames.remove(random.choice(fragnames))
 

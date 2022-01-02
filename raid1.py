@@ -5,7 +5,7 @@ import zmq
 
 import messages_pb2
 
-def random_string(length=8):
+def random_string(length=8): # Inspired by week 4 
     """
     Returns a random alphanumeric string of the given length.
     Only lowercase ascii letters and numbers are used.
@@ -17,27 +17,19 @@ def random_string(length=8):
 
 
 def store_file(file_data, send_task_socket, response_socket, n_stripes, n_replicas):
+
     if n_stripes == 1:
         filenames, nodes = __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas)
 
         storage_details = {"filenames": filenames, "nodes": nodes}
 
     else:
-        filenames_part1, filenames_part2, nodes_part1, nodes_part2 = __store_file__(file_data, send_task_socket,
-                                                                                    response_socket,
-                                                                                    n_stripes,
-                                                                                    n_replicas)
-        storage_details = {
-            "part1_filenames": filenames_part1,
-            "part1_nodes": nodes_part1,
-            "part2_filenames": filenames_part2,
-            "part2_nodes": nodes_part2
-        }
+        return print(f"ERROR: could not handle: {str(n_stripes)} number of stripes. 1 stripe is supported.")
 
     return storage_details
 
 
-def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas):
+def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas): # Inspired by lab 6
     """
     Implements storing a file with RAID 1 using 4 storage nodes.
 
@@ -70,62 +62,9 @@ def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_re
 
         return filenames, nodes
 
-    elif n_stripes == 2:
-        size = len(file_data)
+    else:
+        return print(f"ERROR: could not handle: {str(n_stripes)} number of stripes. 1 stripe is supported.")
 
-        # RAID 1: cut the file in half and store both halves 2x
-        file_data_1 = file_data[:math.ceil(size / 2.0)]
-        file_data_2 = file_data[math.ceil(size / 2.0):]
-
-        file_data_1_names = []
-        file_data_2_names = []
-
-        for i in range(n_replicas):
-            file_data_1_names.append(random_string(8))
-            file_data_2_names.append(random_string(8))
-
-        print("Filenames for part 1: %s" % file_data_1_names)
-        print("Filenames for part 2: %s" % file_data_2_names)
-
-        # Send 2 'store data' Protobuf requests with the first half and chunk names
-        for name in file_data_1_names:
-            task = messages_pb2.storedata_request()
-            task.filename = name
-            send_task_socket.send_multipart([
-                task.SerializeToString(),
-                file_data_1
-            ])
-
-        # Send 2 'store data' Protobuf requests with the second half and chunk names
-        for name in file_data_2_names:
-            task = messages_pb2.storedata_request()
-            task.filename = name
-            send_task_socket.send_multipart([
-                task.SerializeToString(),
-                file_data_2
-            ])
-
-        filenames_part1 = []
-        filenames_part2 = []
-        nodes_part1 = []
-        nodes_part2 = []
-        # Wait until we receive all responses from the workers
-        for task_nbr in range(2 * n_replicas):
-            resp = response_socket.recv_pyobj()
-            filename = resp['filename']
-            node_ip = resp['ip']
-
-            if filename in file_data_1_names:
-                filenames_part1.append(filename)
-                nodes_part1.append(node_ip)
-            else:
-                filenames_part2.append(filename)
-                nodes_part2.append(node_ip)
-
-            print(f'Stored: {filename} on node {node_ip}')
-
-        # Return the chunk names of each replica
-        return filenames_part1, filenames_part2, nodes_part1, nodes_part2
 
 
 #
@@ -157,7 +96,7 @@ def get_file_from_filename(filenames, nodes, data_req_socket, response_socket):
     return file_data
 
 
-def get_file_from_parts(part1_filenames, part2_filenames, data_req_socket,
+def get_file_from_parts(part1_filenames, part2_filenames, data_req_socket, # Inspired by lab 6
                         response_socket):
     """
     Implements retrieving a file that is stored with RAID 1 using 4 storage nodes.

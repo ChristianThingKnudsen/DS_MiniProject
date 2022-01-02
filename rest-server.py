@@ -14,12 +14,9 @@ import reedsolomon
 from database import Database
 
 database = Database()
-
-# For HDFS the name node need to know what storage nodes is available.
 ip_nodes = []
-address = 100 # Added by us in order to simplify
-for i in range(4):
-    # address = input(f'Node {i} address: 192.168.0.___ ') # Incomment for dynmic approach
+address = 100 # starts with 100 ends with 103
+for i in range(4): 
     ip_nodes.append('tcp://192.168.0.' + str(address))
     address +=1
     
@@ -53,7 +50,7 @@ app.teardown_appcontext(database.close_db)
 def hello():
     return make_response({'message': 'Hello from rest-server!'})
 
-@app.route('/files', methods=['GET'])
+@app.route('/files', methods=['GET']) 
 def list_files():
     db = database.get_db()
     cursor = db.execute("SELECT * FROM `file`")
@@ -94,7 +91,7 @@ def add_files():
         print("RAID1")
         n_replicas = int(payload.get('n_replicas')) 
         n_stripes = int(payload.get('n_stripes'))
-        if 0 < n_stripes < 3:
+        if 0 < n_stripes < 2: # 1 stripe supported
             storage_details = raid1.store_file(data, send_task_socket, response_socket, n_stripes, n_replicas) 
         else:
             return make_response({"message": "Number of stripes not supported"}, 404)
@@ -113,7 +110,7 @@ def add_files():
 
         elif type == 'b':
 
-            nodes = networking.get_n_peer_node_address(4)
+            nodes = networking.get_peer_nodes_addresses(4)
 
             encode_socket = context.socket(zmq.REQ)
             encode_socket.connect(nodes[-1] + ':5542')
@@ -235,7 +232,7 @@ def download_file(file_name):
                     "data": bytearray(result[1])
                 })
 
-            node = networking.get_n_peer_node_address(1)
+            node = networking.get_peer_nodes_addresses(1)
 
             decode_socket = context.socket(zmq.REQ)
             decode_socket.connect(node[0] + ':5543')
