@@ -10,7 +10,7 @@ class Networking:
         nodes_left = self.peers[:] # Peer nodes left 
         peer_nodes = [] # peer nodes array
         for i in range(n):
-            if len(nodes_left) > 2: # Pick rabdom if nodes left is greater than 2
+            if len(nodes_left) > 2: # Pick random if nodes left is greater than 2
                 index = random.randint(0, len(nodes_left) - 1)
             else: # Take first index if the peer array consists of 2 node addresses 
                 index = 0

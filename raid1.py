@@ -16,16 +16,16 @@ def random_string(length=8): # Inspired by week 4
     return ''.join([random.SystemRandom().choice(string.ascii_letters + string.digits) for n in range(length)])
 
 
-def store_file(file_data, send_task_socket, response_socket, n_stripes, n_replicas):
+def store_file(file_data, send_task_socket, response_socket, n_replicas):
 
-    filenames, nodes = __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas)
+    filenames, nodes = __store_file__(file_data, send_task_socket, response_socket, n_replicas)
 
     storage_details = {"filenames": filenames, "nodes": nodes}
 
     return storage_details
 
 
-def __store_file__(file_data, send_task_socket, response_socket, n_stripes, n_replicas): # Inspired by lab 6
+def __store_file__(file_data, send_task_socket, response_socket, n_replicas): # Inspired by lab 6
     """
     Implements storing a file with RAID 1 using 4 storage nodes.
 

@@ -150,7 +150,6 @@ def download_file(file_name):
     file_meta = dict(f)
     storage_details = json.loads(file_meta['storage_details'])
     if file_meta['storage_type'] == "RAID1":
-        print("RAID1")
         if 'filenames' in storage_details: 
             filenames = storage_details['filenames']
             nodes = storage_details['nodes']
@@ -160,17 +159,6 @@ def download_file(file_name):
                 nodes,
                 data_req_socket,
                 response_socket,
-            )
-
-        elif 'part1_filenames' in storage_details:
-            part1_filenames = storage_details['part1_filenames']
-            part2_filenames = storage_details['part2_filenames']
-
-            file_data = raid1.get_file_from_parts(
-                part1_filenames,
-                part2_filenames,
-                data_req_socket,
-                response_socket
             )
     elif file_meta['storage_type'] == 'HDFS':
         nodes = storage_details['nodes']

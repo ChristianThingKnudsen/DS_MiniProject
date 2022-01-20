@@ -33,7 +33,7 @@ def get_file(networking, context, filename, nodes, response_socket): # Getting
         rnd = 0
     node = nodes.pop(rnd)
     node = node[6:]
-    print(f'Checking node: {node}')
+    print(f'Checking node: {node}') # Raw ip
     # Protobuf
     pb_file = messages_pb2.getdata_request()
     pb_file.filename = filename
